@@ -33,7 +33,7 @@
         class="flex items-center"
       >
         <input
-          v-model="question.options[index]"
+          v-model="question.options![index]"
           placeholder="Opción"
           class="flex-1 p-2 border rounded mr-2"
           required
@@ -95,6 +95,9 @@ const emit = defineEmits(['update:modelValue', 'remove']);
 const question = ref<Question>({ ...props.modelValue });
 
 watch(question, (newVal) => {
+  if (newVal.type === 'radio' && !newVal.options) {
+    newVal.options = [''];
+  }
   emit('update:modelValue', newVal);
 }, { deep: true });
 

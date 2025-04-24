@@ -1,5 +1,13 @@
 <template>
   <div class="form-response container mx-auto p-4">
+       <div class="mb-4">
+      <NuxtLink 
+        to="/forms" 
+        class="text-blue-500 hover:underline"
+      >
+        ← Volver a todos los formularios
+      </NuxtLink>
+    </div>
     <div v-if="form" class="bg-white rounded-lg shadow-md p-6">
       <h1 class="text-2xl font-bold mb-6">{{ form.title }}</h1>
       
@@ -54,6 +62,7 @@
               <label :for="`q${qIndex}-option${oIndex}`">{{ option }}</label>
             </div>
           </div>
+
         </div>
         
         <button
@@ -62,6 +71,15 @@
         >
           Enviar Respuestas
         </button>
+                  <div class="mt-6 flex justify-between">
+<NuxtLink 
+  :to="`/forms/${form.id}/responses`"
+  class="text-blue-500 hover:underline"
+>
+  Ver todas las respuestas
+</NuxtLink>
+
+</div>
       </form>
     </div>
     
@@ -71,15 +89,16 @@
         Volver a la lista de formularios
       </NuxtLink>
     </div>
+    
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
 
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { useFormStore } from '~/stores/form';
 import type { Form } from '~/stores/form';
-
 const route = useRoute();
 const formStore = useFormStore();
 
@@ -87,7 +106,7 @@ const form = ref<Form | null>(null);
 const answers = ref<(string | number)[]>([]);
 
 onMounted(() => {
-  const foundForm = formStore.forms.find(f => f.id === Number(route.params.id));
+  const foundForm = formStore.getFormById(Number(route.params.id));
   if (foundForm) {
     form.value = foundForm;
     answers.value = Array(foundForm.questions.length).fill('');
@@ -100,15 +119,25 @@ const submitForm = () => {
   try {
     const response: Record<number, string | number> = {};
     form.value.questions.forEach((q, index) => {
-      if (q.required && !answers.value[index]) {
+      const answer = answers.value[index];
+      
+      // Validación requerida
+      if (q.required && !answer) {
         throw new Error(`La pregunta "${q.text}" es requerida`);
       }
-      response[q.id] = answers.value[index];
+      
+      // Validación específica para radio
+      if (q.type === 'radio' && q.required && !answer) {
+        throw new Error(`Debes seleccionar una opción en: "${q.text}"`);
+      }
+      
+      response[q.id] = answer;
     });
     
     formStore.submitResponse(form.value.id, response);
     alert('¡Respuestas enviadas con éxito!');
-    navigateTo('/forms');
+    // navigateTo('/forms');
+    navigateTo(`/forms/${form.value.id}/responses`);
   } catch (error) {
     alert((error as Error).message);
   }

@@ -1,6 +1,6 @@
 type QuestionType = 'short' | 'long' | 'number' | 'radio';
 
-type FormQuestion = {
+export type FormQuestion = {
     id: number;
     text: string;
     type: QuestionType;
@@ -23,7 +23,22 @@ export type Form = {
 
 export const useFormStore = defineStore('form', () => {
     const forms = ref<Form[]>([]);
-    const currentFormId = ref<number | null>(null);
+
+    const initializeStore = () => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('forms');
+            if (saved) forms.value = JSON.parse(saved);
+        }
+    };
+
+    const saveToLocalStorage = () => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('forms', JSON.stringify(forms.value));
+        }
+    };
+
+    // Inicializar al crear el store
+    initializeStore();
 
     const createForm = (title: string, questions: FormQuestion[]): number => {
         const newForm: Form = {
@@ -33,6 +48,7 @@ export const useFormStore = defineStore('form', () => {
             responses: [],
         };
         forms.value.push(newForm);
+        saveToLocalStorage();
         return newForm.id;
     };
 
@@ -44,7 +60,14 @@ export const useFormStore = defineStore('form', () => {
             id: Date.now(),
             answers,
         });
+        saveToLocalStorage();
     };
 
-    return { forms, currentFormId, createForm, submitResponse };
+    const getFormById = (id: number) => {
+        return forms.value.find(f => f.id === id);
+    };
+
+
+
+    return { forms: readonly(forms), createForm, submitResponse, getFormById };
 });
