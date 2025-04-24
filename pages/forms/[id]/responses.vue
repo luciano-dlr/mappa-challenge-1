@@ -53,7 +53,6 @@
 
 <script lang="ts" setup>
 import { useFormStore } from '~/stores/form';
-import type { Form } from '~/stores/form';
 
 const route = useRoute();
 const formStore = useFormStore();

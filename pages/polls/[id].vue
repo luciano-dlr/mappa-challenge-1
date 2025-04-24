@@ -52,6 +52,11 @@ onMounted(() => {
   }
 });
 
+definePageMeta({
+  layout: 'poll' 
+});
+
+
 const totalVotes = computed(() => {
   if (!poll.value) return 0;
   return poll.value.options.reduce((sum, opt) => sum + opt.votes, 0);
