@@ -1,12 +1,6 @@
 <template>
   <div class="form-response container mx-auto p-4">
-       <div class="mb-4">
-      <NuxtLink 
-        to="/forms" 
-        class="text-blue-500 hover:underline"
-      >
-        ← Volver a todos los formularios
-      </NuxtLink>
+      <div class="mb-4">
     </div>
     <div v-if="form" class="bg-white rounded-lg shadow-md p-6">
       <h1 class="text-2xl font-bold mb-6">{{ form.title }}</h1>
@@ -18,7 +12,6 @@
             <span v-if="question.required" class="text-red-500">*</span>
           </label>
           
-          <!-- Short Answer -->
           <input
             v-if="question.type === 'short'"
             v-model="answers[qIndex]"
@@ -28,7 +21,6 @@
             :required="question.required"
           />
           
-          <!-- Long Answer -->
           <textarea
             v-else-if="question.type === 'long'"
             v-model="answers[qIndex]"
@@ -38,7 +30,6 @@
             rows="4"
           ></textarea>
           
-          <!-- Number -->
           <input
             v-else-if="question.type === 'number'"
             v-model.number="answers[qIndex]"
@@ -48,7 +39,7 @@
             :required="question.required"
           />
           
-          <!-- Radio Buttons -->
+
           <div v-else-if="question.type === 'radio'" class="space-y-2">
             <div v-for="(option, oIndex) in question.options" :key="oIndex" class="flex items-center">
               <input
@@ -64,25 +55,23 @@
           </div>
 
         </div>
-        
         <button
           type="submit"
           class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
         >
           Enviar Respuestas
         </button>
-                  <div class="mt-6 flex justify-between">
-<NuxtLink 
-  :to="`/forms/${form.id}/responses`"
-  class="text-blue-500 hover:underline"
->
-  Ver todas las respuestas
-</NuxtLink>
+        <div class="mt-6 flex justify-between">
+        <NuxtLink 
+          :to="`/forms/${form.id}/responses`"
+           class="text-blue-500 hover:underline"
+        >
+        Ver todas las respuestas
+        </NuxtLink>
 
 </div>
-      </form>
+  </form>
     </div>
-    
     <div v-else class="text-center py-10">
       <p class="text-xl">Formulario no encontrado</p>
       <NuxtLink to="/forms" class="text-blue-500 mt-4 inline-block">
@@ -111,6 +100,10 @@ onMounted(() => {
     form.value = foundForm;
     answers.value = Array(foundForm.questions.length).fill('');
   }
+});
+
+definePageMeta({
+  layout: 'form' 
 });
 
 const submitForm = () => {
